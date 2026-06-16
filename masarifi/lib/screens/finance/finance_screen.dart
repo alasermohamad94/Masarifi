@@ -133,11 +133,14 @@ class _FinanceScreenState extends State<FinanceScreen> {
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                   color: provider.currentBalance >= 0
-                      ? AppColors.neonBlue
+                      ? AppColors.incomeGreen
                       : AppColors.expenseRed,
                   shadows: [
                     Shadow(
-                      color: AppColors.neonBlue.withValues(alpha: 0.5),
+                      color: (provider.currentBalance >= 0
+                              ? AppColors.incomeGreen
+                              : AppColors.expenseRed)
+                          .withValues(alpha: 0.5),
                       blurRadius: 20,
                     ),
                   ],

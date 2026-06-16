@@ -347,14 +347,29 @@ class _TaskCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      formatDateTime(task.dateTime),
+                      task.isAppointment && task.hasRecurrence
+                          ? '${formatTime(task.dateTime)} — ${recurrenceLabel(task.recurrence, task.repeatWeekdays)}'
+                          : formatDateTime(task.dateTime),
                       style: TextStyle(
                         color: isCompleted
                             ? AppColors.textSecondary
-                            : AppColors.neonBlueDim,
+                            : (task.isAppointment && task.hasRecurrence && !task.occursToday)
+                                ? AppColors.textSecondary
+                                : AppColors.neonBlueDim,
                         fontSize: 12,
                       ),
                     ),
+                    if (task.isAppointment && task.hasRecurrence && !task.occursToday)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2),
+                        child: Text(
+                          'ليس اليوم',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 if (showAlert && task.alertBefore != null)

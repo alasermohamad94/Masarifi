@@ -9,8 +9,8 @@ class AppColors {
   static const neonBlueDim = Color(0xFF00B4D8);
   static const accentPurple = Color(0xFF7B61FF);
   /// زوج ألوان مسطح متوازن — نفس الإضاءة بدون تدرج
-  static const incomeGreen = Color(0xFF8FBDB2);
-  static const expenseRed = Color(0xFFBDACAC);
+  static const incomeGreen = Color(0xFF34D399);
+  static const expenseRed = Color(0xFFF87171);
   static const warningOrange = Color(0xFFE8B86D);
   static const textPrimary = Color(0xFFF0F4F8);
   static const textSecondary = Color(0xFF94A3B8);
@@ -39,6 +39,8 @@ class AppColors {
 }
 
 class AppTheme {
+  static const fontFamily = 'Cairo';
+
   static ThemeData get darkTheme {
     final baseTextTheme = GoogleFonts.cairoTextTheme(
       ThemeData.dark().textTheme,
@@ -47,7 +49,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      fontFamily: GoogleFonts.cairo().fontFamily,
+      fontFamily: fontFamily,
       scaffoldBackgroundColor: AppColors.darkBlue,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.neonBlue,

@@ -10,8 +10,8 @@ class ChartColors {
     Color(0xFF7B61FF), // بنفسجي
     Color(0xFFFF6B9D), // وردي
     Color(0xFFE8B86D), // برتقالي هادئ
-    Color(0xFF8FBDB2), // أخضر مسطح
-    Color(0xFFBDACAC), // أحمر مسطح
+    Color(0xFF34D399), // أخضر واضح
+    Color(0xFFF87171), // أحمر واضح
     Color(0xFF48CAE4), // سماوي
     Color(0xFFBF5AF2), // بنفسجي فاتح
     Color(0xFFFFD60A), // أصفر
@@ -26,10 +26,10 @@ class ChartColors {
     'rent': Color(0xFF7B61FF),
     'utilities': Color(0xFFFFD60A),
     'entertainment': Color(0xFFFF6B9D),
-    'health': Color(0xFF8FBDB2),
+    'health': Color(0xFF34D399),
     'shopping': Color(0xFF48CAE4),
     'other': Color(0xFF94A3B8),
-    'salary': Color(0xFF8FBDB2),
+    'salary': Color(0xFF34D399),
     'freelance': Color(0xFF64D2FF),
     'investment': Color(0xFFBF5AF2),
     'gift': Color(0xFFFF6B9D),

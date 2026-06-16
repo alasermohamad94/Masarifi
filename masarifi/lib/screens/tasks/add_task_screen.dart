@@ -336,9 +336,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
 
     final provider = context.read<AppProvider>();
-    final weekdays = _recurrence == RecurrenceType.daily
+    var weekdays = _recurrence == RecurrenceType.daily
         ? List<int>.from(allWeekdays)
         : List<int>.from(_repeatWeekdays);
+
+    if (_recurrence == RecurrenceType.specificDays &&
+        !weekdays.contains(_dateTime.weekday)) {
+      weekdays = [...weekdays, _dateTime.weekday]..sort();
+    }
 
     final task = TaskItem(
       id: widget.existing?.id ?? provider.generateId(),

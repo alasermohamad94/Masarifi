@@ -9,6 +9,7 @@ import '../screens/tasks/tasks_screen.dart';
 import '../utils/formatters.dart';
 import '../widgets/common_widgets.dart';
 import '../widgets/currency_picker.dart';
+import 'about_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -78,6 +79,11 @@ class _DashboardTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const Padding(
+          padding: EdgeInsetsDirectional.only(end: 4),
+          child: Center(child: CurrencyPickerButton()),
+        ),
+        leadingWidth: 72,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -93,10 +99,14 @@ class _DashboardTab extends StatelessWidget {
             const Text('مصاريفي'),
           ],
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(left: 12),
-            child: CurrencyPickerButton(),
+        actions: [
+          IconButton(
+            tooltip: 'عن التطبيق',
+            icon: const Icon(Icons.info_outline),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AboutScreen()),
+            ),
           ),
         ],
       ),
@@ -143,7 +153,7 @@ class _DashboardTab extends StatelessWidget {
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: provider.currentBalance >= 0
-                            ? AppColors.neonBlue
+                            ? AppColors.incomeGreen
                             : AppColors.expenseRed,
                       ),
                     ),
@@ -364,8 +374,9 @@ class _ScheduleItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final isPast = task.dateTime.isBefore(now);
-    final timeStr = formatTime(task.dateTime);
+    final displayTime = task.hasRecurrence ? task.todayOccurrence : task.dateTime;
+    final isPast = displayTime.isBefore(now);
+    final timeStr = formatTime(displayTime);
 
     return IntrinsicHeight(
       child: Row(

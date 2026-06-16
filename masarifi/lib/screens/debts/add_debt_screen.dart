@@ -6,8 +6,9 @@ import '../../providers/app_provider.dart';
 
 class AddDebtScreen extends StatefulWidget {
   final Debt? existing;
+  final DebtDirection? initialDirection;
 
-  const AddDebtScreen({super.key, this.existing});
+  const AddDebtScreen({super.key, this.existing, this.initialDirection});
 
   @override
   State<AddDebtScreen> createState() => _AddDebtScreenState();
@@ -28,7 +29,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   void initState() {
     super.initState();
     final e = widget.existing;
-    _direction = e?.direction ?? DebtDirection.owedByMe;
+    _direction = e?.direction ?? widget.initialDirection ?? DebtDirection.owedByMe;
     _nameController.text = e?.personName ?? '';
     _amountController.text = e?.totalAmount.toString() ?? '';
     _paidController.text = e?.paidAmount.toString() ?? '0';
@@ -76,6 +77,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                   child: _DirectionChip(
                     label: 'ديون عليّ',
                     selected: _direction == DebtDirection.owedByMe,
+                    accentColor: AppColors.expenseRed,
                     onTap: () => setState(() => _direction = DebtDirection.owedByMe),
                   ),
                 ),
@@ -84,6 +86,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                   child: _DirectionChip(
                     label: 'ديون لي',
                     selected: _direction == DebtDirection.owedToMe,
+                    accentColor: AppColors.incomeGreen,
                     onTap: () => setState(() => _direction = DebtDirection.owedToMe),
                   ),
                 ),
@@ -268,11 +271,13 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
 class _DirectionChip extends StatelessWidget {
   final String label;
   final bool selected;
+  final Color accentColor;
   final VoidCallback onTap;
 
   const _DirectionChip({
     required this.label,
     required this.selected,
+    required this.accentColor,
     required this.onTap,
   });
 
@@ -284,18 +289,19 @@ class _DirectionChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.neonBlue.withValues(alpha: 0.2)
+              ? accentColor.withValues(alpha: 0.2)
               : AppColors.navyBlue,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected ? AppColors.neonBlue : AppColors.divider,
+            color: selected ? accentColor : AppColors.divider,
+            width: selected ? 2 : 1,
           ),
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              color: selected ? AppColors.neonBlue : AppColors.textSecondary,
+              color: selected ? accentColor : AppColors.textSecondary,
               fontWeight: selected ? FontWeight.bold : FontWeight.normal,
             ),
           ),

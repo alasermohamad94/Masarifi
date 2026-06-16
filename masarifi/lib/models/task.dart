@@ -94,6 +94,29 @@ class TaskItem {
     return occursOn(DateTime.now());
   }
 
+  /// المواعيد المتكررة تبقى ظاهرة في قائمة المواعيد حتى في أيام عدم التكرار.
+  bool get shouldShowInAppointmentsList {
+    if (!isAppointment) return false;
+    if (recurrence == RecurrenceType.none) return !isCompleted;
+    return !isEffectivelyCompleted;
+  }
+
+  /// وقت الحدوث في يوم معيّن (يحافظ على الساعة من تاريخ البداية).
+  DateTime occurrenceDateTime([DateTime? onDate]) {
+    final date = onDate ?? DateTime.now();
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      dateTime.hour,
+      dateTime.minute,
+    );
+  }
+
+  DateTime get todayOccurrence => occurrenceDateTime(DateTime.now());
+
+  bool get occursToday => occursOn(DateTime.now());
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,

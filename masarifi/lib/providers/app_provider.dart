@@ -236,7 +236,7 @@ class AppProvider extends ChangeNotifier {
         ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
   List<TaskItem> get appointments =>
-      tasks.where((t) => t.isAppointment && t.shouldShowActive).toList()
+      tasks.where((t) => t.isAppointment && t.shouldShowInAppointmentsList).toList()
         ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
   List<TaskItem> get todayTasks {
@@ -287,13 +287,16 @@ class AppProvider extends ChangeNotifier {
   }
 
   DateTime _getAlertTime(TaskItem task) {
+    final occurrence = task.hasRecurrence
+        ? task.todayOccurrence
+        : task.dateTime;
     switch (task.alertBefore!) {
       case AlertBefore.minutes15:
-        return task.dateTime.subtract(const Duration(minutes: 15));
+        return occurrence.subtract(const Duration(minutes: 15));
       case AlertBefore.hour1:
-        return task.dateTime.subtract(const Duration(hours: 1));
+        return occurrence.subtract(const Duration(hours: 1));
       case AlertBefore.day1:
-        return task.dateTime.subtract(const Duration(days: 1));
+        return occurrence.subtract(const Duration(days: 1));
     }
   }
 

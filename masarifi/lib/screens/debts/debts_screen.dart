@@ -8,90 +8,112 @@ import '../../utils/formatters.dart';
 import '../../widgets/common_widgets.dart';
 import 'add_debt_screen.dart';
 
-class DebtsScreen extends StatelessWidget {
+class DebtsScreen extends StatefulWidget {
   const DebtsScreen({super.key});
 
   @override
+  State<DebtsScreen> createState() => _DebtsScreenState();
+}
+
+class _DebtsScreenState extends State<DebtsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  DebtDirection get _currentDirection => _tabController.index == 0
+      ? DebtDirection.owedByMe
+      : DebtDirection.owedToMe;
+
+  Future<void> _openAddDebt() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddDebtScreen(initialDirection: _currentDirection),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Builder(
-        builder: (context) {
-          final tabController = DefaultTabController.of(context);
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('الديون'),
-              bottom: TabBar(
-                controller: tabController,
-                indicatorColor: AppColors.neonBlue,
-                labelColor: AppColors.neonBlue,
-                unselectedLabelColor: AppColors.textSecondary,
-                tabs: const [
-                  Tab(
-                    icon: Icon(Icons.arrow_upward, size: 18, color: DebtColors.owedByMe),
-                    text: 'ديون عليّ',
-                  ),
-                  Tab(
-                    icon: Icon(Icons.arrow_downward, size: 18, color: DebtColors.owedToMe),
-                    text: 'ديون لي',
-                  ),
-                ],
-              ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الديون'),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppColors.neonBlue,
+          labelColor: AppColors.neonBlue,
+          unselectedLabelColor: AppColors.textSecondary,
+          tabs: const [
+            Tab(
+              icon: Icon(Icons.arrow_upward, size: 18, color: DebtColors.owedByMe),
+              text: 'ديون عليّ',
             ),
-            body: Consumer<AppProvider>(
-              builder: (context, provider, _) {
-                if (provider.isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: AppColors.neonBlue),
-                  );
-                }
+            Tab(
+              icon: Icon(Icons.arrow_downward, size: 18, color: DebtColors.owedToMe),
+              text: 'ديون لي',
+            ),
+          ],
+        ),
+      ),
+      body: Consumer<AppProvider>(
+        builder: (context, provider, _) {
+          if (provider.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.neonBlue),
+            );
+          }
 
-                final reminders = provider.upcomingDebtReminders;
-                final owedByMeTotal = provider.debtsOwedByMe
-                    .where((d) => d.status != DebtStatus.paid)
-                    .fold(0.0, (s, d) => s + d.remainingAmount);
-                final owedToMeTotal = provider.debtsOwedToMe
-                    .where((d) => d.status != DebtStatus.paid)
-                    .fold(0.0, (s, d) => s + d.remainingAmount);
+          final reminders = provider.upcomingDebtReminders;
+          final owedByMeTotal = provider.debtsOwedByMe
+              .where((d) => d.status != DebtStatus.paid)
+              .fold(0.0, (s, d) => s + d.remainingAmount);
+          final owedToMeTotal = provider.debtsOwedToMe
+              .where((d) => d.status != DebtStatus.paid)
+              .fold(0.0, (s, d) => s + d.remainingAmount);
 
-                return Column(
+          return Column(
+            children: [
+              if (reminders.isNotEmpty) _RemindersBanner(debts: reminders),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
                   children: [
-                    if (reminders.isNotEmpty) _RemindersBanner(debts: reminders),
-                    Expanded(
-                      child: TabBarView(
-                        controller: tabController,
-                        children: [
-                          _DebtList(
-                            debts: provider.debtsOwedByMe,
-                            emptyMessage: 'لا توجد ديون عليك',
-                            provider: provider,
-                            isOwedByMe: true,
-                            totalRemaining: owedByMeTotal,
-                          ),
-                          _DebtList(
-                            debts: provider.debtsOwedToMe,
-                            emptyMessage: 'لا أحد مدين لك',
-                            provider: provider,
-                            isOwedByMe: false,
-                            totalRemaining: owedToMeTotal,
-                          ),
-                        ],
-                      ),
+                    _DebtList(
+                      debts: provider.debtsOwedByMe,
+                      emptyMessage: 'لا توجد ديون عليك',
+                      provider: provider,
+                      isOwedByMe: true,
+                      totalRemaining: owedByMeTotal,
+                    ),
+                    _DebtList(
+                      debts: provider.debtsOwedToMe,
+                      emptyMessage: 'لا أحد مدين لك',
+                      provider: provider,
+                      isOwedByMe: false,
+                      totalRemaining: owedToMeTotal,
                     ),
                   ],
-                );
-              },
-            ),
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AddDebtScreen()),
+                ),
               ),
-              icon: const Icon(Icons.add),
-              label: const Text('إضافة دين'),
-            ),
+            ],
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openAddDebt,
+        icon: const Icon(Icons.add),
+        label: const Text('إضافة دين'),
       ),
     );
   }
@@ -223,7 +245,7 @@ class _SummaryBanner extends StatelessWidget {
         border: Border.all(color: DebtColors.borderColor(isOwedByMe)),
         boxShadow: [
           BoxShadow(
-            color: accent.withValues(alpha: 0.06),
+            color: accent.withValues(alpha: 0.12),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -476,6 +498,32 @@ class _DebtCard extends StatelessWidget {
                         color: daysLeft == 0
                             ? AppColors.expenseRed
                             : AppColors.warningOrange,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (!isPaid && daysLeft < 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.expenseRed.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline, size: 14, color: AppColors.expenseRed),
+                    const SizedBox(width: 6),
+                    Text(
+                      'متأخر ${daysLeft.abs()} ${daysLeft.abs() == 1 ? 'يوم' : 'أيام'}',
+                      style: const TextStyle(
+                        color: AppColors.expenseRed,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
