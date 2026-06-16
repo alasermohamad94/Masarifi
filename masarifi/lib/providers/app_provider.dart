@@ -5,6 +5,7 @@ import '../models/debt.dart';
 import '../models/task.dart';
 import '../models/transaction.dart';
 import '../services/storage_service.dart';
+import '../services/notification_service.dart';
 import '../utils/formatters.dart';
 
 class AppProvider extends ChangeNotifier {
@@ -33,6 +34,15 @@ class AppProvider extends ChangeNotifier {
     }
     isLoading = false;
     notifyListeners();
+    await NotificationService.instance.requestPermissions();
+    await _syncNotifications();
+  }
+
+  Future<void> _syncNotifications() async {
+    await NotificationService.instance.rescheduleAll(
+      tasks: tasks,
+      debts: debts,
+    );
   }
 
   String formatMoney(double amount) =>
@@ -207,6 +217,7 @@ class AppProvider extends ChangeNotifier {
   Future<void> addDebt(Debt debt) async {
     debts.add(debt);
     await _storage.saveDebts(debts);
+    await _syncNotifications();
     notifyListeners();
   }
 
@@ -215,6 +226,7 @@ class AppProvider extends ChangeNotifier {
     if (index != -1) {
       debts[index] = debt;
       await _storage.saveDebts(debts);
+      await _syncNotifications();
       notifyListeners();
     }
   }
@@ -222,6 +234,7 @@ class AppProvider extends ChangeNotifier {
   Future<void> deleteDebt(String id) async {
     debts.removeWhere((d) => d.id == id);
     await _storage.saveDebts(debts);
+    await _syncNotifications();
     notifyListeners();
   }
 
@@ -303,6 +316,7 @@ class AppProvider extends ChangeNotifier {
   Future<void> addTask(TaskItem task) async {
     tasks.add(task);
     await _storage.saveTasks(tasks);
+    await _syncNotifications();
     notifyListeners();
   }
 
@@ -311,6 +325,7 @@ class AppProvider extends ChangeNotifier {
     if (index != -1) {
       tasks[index] = task;
       await _storage.saveTasks(tasks);
+      await _syncNotifications();
       notifyListeners();
     }
   }
@@ -335,12 +350,14 @@ class AppProvider extends ChangeNotifier {
     }
 
     await _storage.saveTasks(tasks);
+    await _syncNotifications();
     notifyListeners();
   }
 
   Future<void> deleteTask(String id) async {
     tasks.removeWhere((t) => t.id == id);
     await _storage.saveTasks(tasks);
+    await _syncNotifications();
     notifyListeners();
   }
 }

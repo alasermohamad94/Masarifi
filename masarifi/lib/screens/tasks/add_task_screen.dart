@@ -93,7 +93,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               title: const Text('موعد (لقاء، حجز، إلخ)'),
               value: _isAppointment,
               activeColor: AppColors.neonBlue,
-              onChanged: (v) => setState(() => _isAppointment = v),
+              onChanged: (v) => setState(() {
+                _isAppointment = v;
+                if (v && _alertBefore == null) {
+                  _alertBefore = AlertBefore.hour1;
+                }
+              }),
             ),
             const SizedBox(height: 8),
             TextFormField(

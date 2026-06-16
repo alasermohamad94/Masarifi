@@ -5,11 +5,13 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/app_provider.dart';
 import 'screens/home_screen.dart';
+import 'services/notification_service.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // استخدام خط Cairo المضمّن محلياً بدلاً من التحميل من الإنترنت
   GoogleFonts.config.allowRuntimeFetching = false;
+  await NotificationService.instance.initialize();
   runApp(const MasarifiApp());
 }
 
