@@ -10,7 +10,8 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val channelName = "masarifi/notifications"
+    private val notificationsChannel = "masarifi/notifications"
+    private val shareChannel = "masarifi/share"
     private val requestCodeNotifications = 1001
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -19,7 +20,7 @@ class MainActivity : FlutterActivity() {
 
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            channelName,
+            notificationsChannel,
         ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "requestPermissions" -> {
@@ -44,6 +45,36 @@ class MainActivity : FlutterActivity() {
                         title,
                         body,
                         triggerAt,
+                    )
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            shareChannel,
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "shareText" -> {
+                    val text = call.argument<String>("text") ?: ""
+                    ShareHelper.shareText(this, text, "مشاركة تقرير مصاريفي")
+                    result.success(null)
+                }
+                "shareWhatsApp" -> {
+                    val text = call.argument<String>("text") ?: ""
+                    ShareHelper.shareWhatsApp(this, text)
+                    result.success(null)
+                }
+                "shareCsv" -> {
+                    val content = call.argument<String>("content") ?: ""
+                    val fileName = call.argument<String>("fileName") ?: "masarifi_export.csv"
+                    ShareHelper.shareCsvFile(
+                        this,
+                        content,
+                        fileName,
+                        "رفع على Google Drive أو مشاركة الملف",
                     )
                     result.success(null)
                 }

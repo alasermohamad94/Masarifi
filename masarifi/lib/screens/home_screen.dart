@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../models/task.dart';
 import '../providers/app_provider.dart';
+import '../services/export_service.dart';
 import '../screens/debts/debts_screen.dart';
 import '../screens/finance/finance_screen.dart';
 import '../screens/tasks/tasks_screen.dart';
 import '../utils/formatters.dart';
 import '../widgets/common_widgets.dart';
 import '../widgets/currency_picker.dart';
+import '../widgets/export_sheet.dart';
 import 'about_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -100,6 +102,11 @@ class _DashboardTab extends StatelessWidget {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'مشاركة تقرير شامل',
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => showExportSheet(context, scope: ExportScope.full),
+          ),
           IconButton(
             tooltip: 'عن التطبيق',
             icon: const Icon(Icons.info_outline),

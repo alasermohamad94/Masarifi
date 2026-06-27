@@ -3,12 +3,68 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/task.dart';
 import '../../providers/app_provider.dart';
+import '../../services/export_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/export_sheet.dart';
 import 'add_task_screen.dart';
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
+
+  void _showTasksShareMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.navyBlue,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'مشاركة',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.event, color: AppColors.accentPurple),
+                title: const Text('المواعيد'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showExportSheet(context, scope: ExportScope.appointments);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.task_alt, color: AppColors.neonBlue),
+                title: const Text('المهام'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showExportSheet(context, scope: ExportScope.tasks);
+                },
+              ),
+              ListTile(
+                leading:
+                    const Icon(Icons.dashboard, color: AppColors.incomeGreen),
+                title: const Text('تقرير شامل (مالية + ديون + مهام)'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showExportSheet(context, scope: ExportScope.full);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +73,13 @@ class TasksScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('المهام والمواعيد'),
+          actions: [
+            IconButton(
+              tooltip: 'مشاركة',
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => _showTasksShareMenu(context),
+            ),
+          ],
           bottom: const TabBar(
             isScrollable: true,
             indicatorColor: AppColors.neonBlue,

@@ -8,8 +8,11 @@ import '../../utils/formatters.dart';
 import '../../utils/chart_colors.dart';
 import '../../widgets/common_widgets.dart';
 import '../../widgets/currency_picker.dart';
+import '../../widgets/export_sheet.dart';
+import '../../services/export_service.dart';
 import '../../widgets/expense_pie_chart.dart';
 import 'add_transaction_screen.dart';
+import 'transactions_list_screen.dart';
 
 enum _ChartPeriod { daily, weekly, monthly }
 
@@ -28,12 +31,17 @@ class _FinanceScreenState extends State<FinanceScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('الدخل والمصروفات'),
-        actions: const [
-          Padding(
+        actions: [
+          IconButton(
+            tooltip: 'مشاركة وتصدير',
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => showExportSheet(context, scope: ExportScope.finance),
+          ),
+          const Padding(
             padding: EdgeInsets.only(left: 8),
             child: CurrencyPickerButton(),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
         ],
       ),
       body: Consumer<AppProvider>(
@@ -58,13 +66,104 @@ class _FinanceScreenState extends State<FinanceScreen> {
                 const SizedBox(height: 20),
                 _buildTopCategories(provider),
                 const SizedBox(height: 20),
-                SectionHeader(title: 'آخر الحركات'),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: SectionHeader(title: 'آخر الحركات'),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TransactionsListScreen(
+                            initialFilter: TransactionListFilter.expense,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.receipt_long, size: 18),
+                      label: const Text('المصروفات'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.expenseRed,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TransactionsListScreen(),
+                        ),
+                      ),
+                      icon: const Icon(Icons.list_alt, size: 18),
+                      label: const Text('الكل'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.neonBlue,
+                      ),
+                    ),
+                  ],
+                ),
                 ...provider.transactions.reversed.take(10).map(
                       (t) => _TransactionTile(
                         transaction: t,
                         provider: provider,
                       ),
                     ),
+                if (provider.transactions.length > 10)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const TransactionsListScreen(
+                                  initialFilter:
+                                      TransactionListFilter.expense,
+                                ),
+                              ),
+                            ),
+                            icon: const Icon(Icons.receipt_long),
+                            label: Text(
+                              'جميع المصروفات (${provider.transactions.where((t) => t.type == TransactionType.expense).length})',
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.expenseRed,
+                              side: BorderSide(
+                                color:
+                                    AppColors.expenseRed.withValues(alpha: 0.4),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const TransactionsListScreen(),
+                              ),
+                            ),
+                            icon: const Icon(Icons.list_alt),
+                            label: Text(
+                              'كل الحركات (${provider.transactions.length})',
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.neonBlue,
+                              side: BorderSide(
+                                color:
+                                    AppColors.neonBlue.withValues(alpha: 0.4),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 if (provider.transactions.isEmpty)
                   const EmptyState(
                     icon: Icons.account_balance_wallet_outlined,
@@ -206,6 +305,25 @@ class _FinanceScreenState extends State<FinanceScreen> {
             data: provider.getExpensesByCategory(),
             currency: provider.selectedCurrency,
           ),
+          if (provider.getExpensesByCategory().isNotEmpty)
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton.icon(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TransactionsListScreen(
+                      initialFilter: TransactionListFilter.expense,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.open_in_new, size: 16),
+                label: const Text('عرض كل المصروفات'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.expenseRed,
+                ),
+              ),
+            ),
         ],
       ),
     );

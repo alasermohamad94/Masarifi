@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/debt.dart';
 import '../../providers/app_provider.dart';
+import '../../services/export_service.dart';
 import '../../utils/chart_colors.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/export_sheet.dart';
 import 'add_debt_screen.dart';
 
 class DebtsScreen extends StatefulWidget {
@@ -49,6 +51,14 @@ class _DebtsScreenState extends State<DebtsScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('الديون'),
+        actions: [
+          IconButton(
+            tooltip: 'مشاركة الديون',
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () =>
+                showExportSheet(context, scope: ExportScope.debts),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.neonBlue,
